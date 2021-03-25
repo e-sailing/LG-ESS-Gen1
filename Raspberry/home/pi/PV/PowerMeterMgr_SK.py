@@ -120,9 +120,9 @@ def main():
 					Erg += '{"path": "PMM.activeExport","value":'+f"{(activeExport/100):.0f}"+'},'
 					Erg += '{"path": "PMM.activePower","value":'+f"{(activePower/100):.0f}"+'},'
 					Erg += '{"path": "PMM.activePowerD","value":'+f"{(activePowerM/1000):.0f}"+'},'
-					Erg += '{"path": "PMM.voltage1","value":'+f"{(voltage1/1000):.0f}"+'},'
-					Erg += '{"path": "PMM.voltage2","value":'+f"{(voltage2/1000):.0f}"+'},'
-					Erg += '{"path": "PMM.voltage3","value":'+f"{(voltage3/1000):.0f}"+'},'
+					Erg += '{"path": "PMM.voltage1","value":'+f"{(voltage1/10):.1f}"+'},'
+					Erg += '{"path": "PMM.voltage2","value":'+f"{(voltage2/10):.1f}"+'},'
+					Erg += '{"path": "PMM.voltage3","value":'+f"{(voltage3/10):.1f}"+'},'
 					SignalK +=Erg[0:-1]+']}]}\n'
 					try:
 						sock.sendto(SignalK.encode(), ('127.0.0.1', 55555))
