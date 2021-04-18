@@ -1,26 +1,15 @@
 #!/bin/sh
-#check process PowerMeterMgr_SK.py and PCSMgr_SK.py are working if not start them
-resultPMM=$(ps aux | grep [P]owerMeterMgr_SK)
-resultPCS=$(ps aux | grep [P]CSMgr_SK)
+#check process Both_SK.py (PowerMeterMgr_SK.py and PCSMgr_SK.py old) is working if not start it
+resultBoth=$(ps aux | grep [B]oth_SK)
 
-echo $resultPMM
-echo $resultPCS
+echo $resultBoth
 cd /home/pi/PV-laden
 
-if [ -z "$resultPMM" ]; then
-	./PowerMeterMgr_SK.py &
-	echo "PowerMeterMgr_SK started"
+if [ -z "$resultBoth" ]; then
+	./Both_SK.py &
+	echo "Both (PowerMeter and PCS) started"
 else
-	echo "PowerMeterMgr_SK already running"
-fi
-
-#echo ${#resultPCS}
-#if [ "${#resultPCS}" > 10 ]; then
-if [ -z "$resultPCS" ]; then
-	./PCSMgr_SK.py &
-	echo "PCSMgr_SK gestartet"
-else
-	echo "PCSMgr_SK already running"
+	echo "Both (PowerMeter and PCS) already running"
 fi
 
 
