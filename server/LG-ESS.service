@@ -1,0 +1,14 @@
+[Unit]
+Description=LG ESS data
+After=network.target
+
+[Service]
+Type=Simple
+ExecStart=/usr/bin/python3 /home/pi/LG-ESS-Gen1/server/LG-ESSapiSKmqtt.py
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=/home/pi/LG-ESS-Gen1/server
+User=root
+
+[Install]
+WantedBy=multi-user.target

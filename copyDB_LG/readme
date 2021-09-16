@@ -1,0 +1,6 @@
+The LG-ESS Gen1 has its own database.
+It has limitted memory and deletes old data.
+To work with and save the data it is easier to copy it into a mariadb
+You should have a local mariadb with the username=user and the password=user.
+
+There is a dashboard for grafana. The dashboard LG-db.json can be imported.

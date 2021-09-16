@@ -4,7 +4,7 @@ result=$(ls /media/lge-ems | grep "ems_DEU.db-shm")
 
 if [ -z $result ]
 then
-	sudo sshfs -o allow_other root@192.168.68.83:/nvdata/DBFiles /media/lge-ems
+	sudo sshfs -o allow_other root@lge-ems.local:/nvdata/DBFiles /media/lge-ems
 	echo "lge-ems eingebunden"
 fi
 
@@ -19,5 +19,5 @@ fi
 #rm /media/RAM/*.*
 cp /media/lge-ems/*.* /media/RAM
 echo "db kopiert"
-python3 /home/pi/write_LG4.py
+python3 /home/pi/LG-ESS-Gen1/copyDB_LG/copyDB_LG.py
 echo "neue Datensätze an MySQL angehängt"
