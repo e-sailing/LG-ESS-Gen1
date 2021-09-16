@@ -1,7 +1,7 @@
 # LG ESS 6.4 kW 2016 (Gen 1)
 ## how to get Data from the controller when there is no output
 
-![](C:\Users\stell\Documents\GitHub\LG-ESS-Gen1\doc\LG-ESS Gen1.jpg)
+![](doc/LG-ESS-Gen1.jpg)
 
 There is no api or anything to communicate with the controller.
 But you can enter the system as root user with putty or ssh. To copy files from or to the controller use FileZilla or WinSCP.
@@ -20,10 +20,10 @@ To save history data on a raspberry pi in a mariaDB and view it on grafana, use 
 
 
 
-`cd copyDB_LG` 
-
-`./copyDB_LG.sh`
-
+```
+cd copyDB_LG 
+./copyDB_LG.sh
+```
 
 
 
@@ -37,7 +37,7 @@ The communication between the different *Mgr processes are done with pipes. Thes
 
 In the folder LG-ESS/root there are two files which should be copied to the LG-ESS.
 
-![](C:\Users\stell\Documents\GitHub\LG-ESS-Gen1\doc\rpi-filezilla.png)
+![](doc/rpi-filezilla.png)
 
 (The strace comes from https://github.com/yunchih/static-binaries/blob/master/strace) 
 
@@ -45,9 +45,10 @@ The ip address must be edited in the bash script Both_Mgr.sh to the ip address o
 
 To start sending to the raspberry, ssh into your LG-ESS
 
-`ssh root@lge-ems.local`
-
-`./Both_Mgr.sh &`
+```
+ssh root@lge-ems.local
+./Both_Mgr.sh &
+```
 
 
 
@@ -84,7 +85,8 @@ there are two commands to get json data from the api
 
 is a raw list of all data
 
-`pv	
+```
+pv	
     last_communication_time	"2021-09-16T08:26:15.000Z"
     pvValue6.Verbrauch	297
     pvValue7	625
@@ -126,7 +128,8 @@ grid
     gridVoltage2	233
     gridVoltage3	233.5
     gridActivePower	-0.26
-    gridFrequency	50.02`
+    gridFrequency	50.02
+```
 
 
 
@@ -134,7 +137,8 @@ grid
 
 is a list of important data
 
-`grid	
+```
+grid	
     last_communication_time	"2021-09-16T08:30:42.000Z"
     GridActivePower	0.13
 battery	
@@ -147,7 +151,8 @@ load
     HousePowerConsumption	307
 pv	
     GridActiveExport	7154.12
-    PvPower	999`
+    PvPower	999
+```
 
 
 
@@ -155,4 +160,4 @@ pv
 
 A picture of the data captured from mqtt-explorer
 
-![](C:\Users\stell\Documents\GitHub\LG-ESS-Gen1\doc\MQTT-explorer.png)
+![](doc/MQTT-explorer.png)
