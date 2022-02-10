@@ -82,9 +82,9 @@ If the server should start on every boot use:
 
 ### API
 
-there are two commands to get json data from the api
+there are three commands to get json data from the api
 
-<ip>:9091/json/all
+http://localhost:9091/json/all (use your ip address)
 
 is a raw list of all data
 
@@ -136,9 +136,8 @@ grid
 
 
 
-<ip>:9090/lgess
+http://localhost:9091/lgess  is a reduced list of the above dates.
 
-is a list of important data
 
 ```
 grid	
@@ -157,6 +156,23 @@ pv
     PvPower	999
 ```
 
+<http://localhost:9091/lgessgen1>  is a reduced list of the above dates.
+
+```
+time "2022-02-10T09:34:30.000Z"
+gridpower 42.74
+gridimport 10666.26
+gridexport 7193.78
+gridvoltage1 234.6
+gridvoltage2 233.9
+gridvoltage3 233.7
+batterysoc 21.5
+batterypower 0
+batterypowern 0
+batterykwh 1290
+residualpower 486.37
+pvpower 439
+```
 
 
 ### MQTT
