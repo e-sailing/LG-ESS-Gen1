@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+#import context
 import json
 import posixpath
 import socket
@@ -8,11 +9,12 @@ import time
 import urllib
 import sys
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-import paho.mqtt.client as mqtt
+#import paho.mqtt.client as mqtt
+import paho.mqtt.publish as publish
 
 hostNameApi = ""
-hostNameMqtt = "127.0.0.1"          #change to your need
-hostPort = 9090                         #change to your need
+hostNameMqtt = "localhost"              #change to your need
+hostPort = 9091                         #change to your need  this is the api port (for example http://localhost:9091/lgess)
 
 # debug settings
 printRaw = False
@@ -80,7 +82,38 @@ class MyRequestH(SimpleHTTPRequestHandler):
         # print(vars.gridActivePower)
         (path, query) = self.pathQueryFromUrl(self.path)
 
-        if path.startswith("/lgess"):
+        if path.startswith("/lgessgen1"):
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            if vars.pvBatPower >= 0:
+                pvBatPower = vars.pvBatPower
+            if (vars.pvBatPower + vars.gridActivePower) < -1500:
+                pvBatPower = vars.pvBatPower*0.8
+            else:
+                if vars.pvBatPower < 0:
+                    pvBatPower = vars.pvBatPower/2           
+
+            lgessgen1 = {
+                "time": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime()),
+                "gridpower": vars.gridActivePower,
+                "gridimport": vars.gridActiveImport,
+                "gridexport": vars.gridActiveExport,
+                "gridvoltage1": vars.gridVoltage1,
+                "gridvoltage2": vars.gridVoltage2,
+                "gridvoltage3": vars.gridVoltage3,
+                "batterysoc": vars.pvSoc,  # 166
+                "batterypower": vars.pvBatPower,  # 128
+                "batterypowern": vars.pvBatPower,  # 128
+                "batterykwh": 60 * vars.pvSoc,
+                "residualpower": vars.pvActivePower,  # fehlt o.PVPower
+                "pvpower": vars.pvPower  # 125   totalenergy 151
+                }
+
+            self.wfile.write(bytes(json.dumps(lgessgen1), "utf-8"))
+            return
+            
+        elif path.startswith("/lgess"):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
@@ -93,28 +126,32 @@ class MyRequestH(SimpleHTTPRequestHandler):
                     pvBatPower = vars.pvBatPower/2           
 
             test = {
+                "time": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime()),
                 "grid": {
-                    "last_communication_time": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime()),
                     #"GridActivePower": vars.gridActivePower + pvBatPower
-                    "GridActivePower": vars.gridActivePower
+                    "ActivePower": vars.gridActivePower,
+                    "Voltage1": vars.gridVoltage1,
+                    "Voltage2": vars.gridVoltage2,
+                    "Voltage3": vars.gridVoltage3
                 },
                 "battery": {
-                    "PvSoc": vars.pvSoc,  # 166
-                    "PvBatPower": vars.pvBatPower,  # 128
-                    "PvBatPowerInv": -vars.pvBatPower,  # 128
-                    "PvSocKW": 60 * vars.pvSoc
+                    "Soc": vars.pvSoc,  # 166
+                    "Power": vars.pvBatPower,  # 128
+                    "PowerInv": -vars.pvBatPower,  # 128
+                    "SocKW": 60 * vars.pvSoc
                 },
                 "load": {
-                    "GridActiveImport": vars.gridActiveImport,
+                    "ActiveImport": vars.gridActiveImport,
                     "HousePowerConsumption": vars.pvActivePower  # fehlt o.PVPower
                 },
                 "pv": {
-                    "GridActiveExport": vars.gridActiveExport,
-                    "PvPower": vars.pvPower  # 125   totalenergy 151
+                    "ActiveExport": vars.gridActiveExport,
+                    "Power": vars.pvPower  # 125   totalenergy 151
                 }}
 
             self.wfile.write(bytes(json.dumps(test), "utf-8"))
             return
+
 
         if path.startswith("/json/all"):
             self.send_response(200)
@@ -213,6 +250,7 @@ def DataFromLGESS(varholder):
     pidAll = ["", ""]
     direction = 100
     directionAll = ["read", "writ"]
+    mqttcount = 0
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -234,9 +272,9 @@ def DataFromLGESS(varholder):
     s.listen(2)
     print('Socket now listening')
 
-    if mQtt:
-        mqttClient= mqtt.Client("LG-ESS")
-        mqttClient.connect(hostNameMqtt)
+    #if mQtt:
+    #    mqttClient= mqtt.Client("LG-ESS")
+    #    mqttClient.connect(hostNameMqtt)
 
     while 1:
         conn, addr = s.accept()
@@ -267,7 +305,7 @@ def DataFromLGESS(varholder):
                     if data[4:10] != pidAll[0]:
                         pidAll[1] = data[4:10]
                         pidKnown = True
-                        print('pidAll', pidAll, 'get')
+                        #print('pidAll', pidAll, 'get')
             else:
                 if data[0] == '[' and data[4:10] in pidAll:
                     pid = pidAll.index(data[4:10]) * 10
@@ -308,10 +346,10 @@ def DataFromLGESS(varholder):
 
                     if len(vars.pvValue) > 40:
                         if vars.pvValue[25] > 0:
-                            vars.pvActivePower = vars.pvValue[6]
                             vars.pvPower = round((vars.pvValue[10] + vars.pvValue[13]) * 0.95, 0)
                             vars.pvSoc = round((vars.pvValue[26] - 45) * 100 / 905, 1)
                             vars.pvBatPower = vars.pvValue[19]
+                            vars.pvActivePower = vars.gridActivePower+vars.pvPower+vars.pvBatPower
                             if sK:
                                 SignalK = {"updates": [{"$source": "pv.5002", "values": [
                                     {"path": "pv.activepower", "value": vars.pvActivePower},
@@ -327,11 +365,25 @@ def DataFromLGESS(varholder):
                                     print('pv:')
                                     print(SignalK)
                             if mQtt:
-                                mqttClient.publish("house/power",vars.pvActivePower)
-                                mqttClient.publish("pv/power",vars.pvPower)
-                                mqttClient.publish("batt/power",vars.pvBatPower)
-                                mqttClient.publish("batt/soc",vars.pvSoc)
-                                
+                                mqttcount += 1
+                                if mqttcount > 3:
+                                    mqttcount = 0
+                                    
+                                if mqttcount == 0:
+                                    msgs = [
+                                    ("lgess/pv/power",vars.pvPower,0,False),
+                                    ("lgess/battery/power",-vars.pvBatPower,0,False),
+                                    ("lgess/battery/level",vars.pvSoc),
+                                    ("openWB/set/pv/1/W",round(vars.pvPower),0,False),
+                                    ("openWB/set/houseBattery/W",-round(vars.pvBatPower),0,False),
+                                    ("openWB/set/houseBattery/%Soc",round(vars.pvSoc))
+                                    ]
+                                    try:
+                                        publish.multiple(msgs, hostNameMqtt)
+                                    except:
+                                        print("can't publish")
+                                        mqttcount = -100
+                                    #print(msgs)
                                 
                     pvData = bytearray()
                 elif direction == 10:  # PowerMeter read
@@ -395,13 +447,28 @@ def DataFromLGESS(varholder):
                                 print(SignalK)
                             
                         if mQtt:
-                            mqttClient.publish("grid/importcounter",vars.gridActiveImport)
-                            mqttClient.publish("grid/exportcounter",vars.gridActiveExport)
-                            mqttClient.publish("grid/power",vars.gridActivePower)
-                            mqttClient.publish("grid/voltage1",vars.gridVoltage1)
-                            mqttClient.publish("grid/voltage2",vars.gridVoltage2)
-                            mqttClient.publish("grid/voltage3",vars.gridVoltage3)
-                            mqttClient.publish("grid/frequency",vars.gridFrequency)                   
+                            if mqttcount == 0:
+                                msgs = [
+                                ("lgess/grid/imported",vars.gridActiveImport,0,False),
+                                ("lgess/grid/exported",vars.gridActiveExport,0,False),
+                                ("lgess/grid/power",vars.gridActivePower,0,False),
+                                ("lgess/grid/voltage1",vars.gridVoltage1,0,False),
+                                ("lgess/grid/voltage2",vars.gridVoltage2,0,False),
+                                ("lgess/grid/voltage3",vars.gridVoltage3,0,False),
+                                ("lgess/grid/frequenz",vars.gridFrequency,0,False),
+                                ("openWB/set/evu/WhImported",vars.gridActiveImport,0,False),
+                                ("openWB/set/evu/WhExported",vars.gridActiveExport,0,False),
+                                ("openWB/set/evu/W",round(vars.gridActivePower),0,False),
+                                ("openWB/set/evu/VPhase1",vars.gridVoltage1,0,False),
+                                ("openWB/set/evu/VPhase2",vars.gridVoltage2,0,False),
+                                ("openWB/set/evu/VPhase3",vars.gridVoltage3,0,False),
+                                ("openWB/set/evu/HzFrequenz",round(vars.gridFrequency),0,False)
+                                ]
+                                try:
+                                    publish.multiple(msgs, hostNameMqtt)
+                                except:
+                                    print("can't publish")
+                                #print(msgs)
 
                     gridData = bytearray()
 

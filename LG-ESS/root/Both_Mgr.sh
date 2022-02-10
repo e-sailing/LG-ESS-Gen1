@@ -1,4 +1,18 @@
 #!/bin/bash
+# this bash script should be started in a terminal by "./Both_Mgr.sh
+
+# kill all older Both_Mgr processes
+for pid in $(pidof -x Both_Mgr.sh); do
+    if [ $pid != $$ ]; then
+        echo "[$(date)] : Both_Mgr.sh : Process is already running"
+		echo "with PID $pid. It will be replaced by this process."
+		kill -9 $pid
+        #exit 1
+    fi
+done
+
+# kill all processes started by older Both_Mgr
+killall strace
 
 while :
 do

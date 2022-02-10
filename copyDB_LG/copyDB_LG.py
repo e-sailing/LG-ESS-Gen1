@@ -3,8 +3,11 @@
 import mysql.connector
 import datetime
 import sqlite3
+import sys
 from sqlite3 import Error
 
+MariaDBuser="xxxx"
+MariaDBpassword="xxxxxxxx"
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -37,11 +40,11 @@ def select(connSqlite,sql):
 def lastDateMySQL():
     try:
         connMySQL = mysql.connector.connect(
-        user="root",
-        password="teslalogger",
+        user=MariaDBuser,
+        password=MariaDBpassword,
         db="Haus",
         host="localhost")
-    except MySQLdb.Error as e:
+    except mysql.connector.Error as e:
         print("Error connecting to MariaDB Platform: {e}")
         sys.exit(1)
         
@@ -61,12 +64,12 @@ def lastDateMySQL():
 def selectdb():
     try:
         connMySQL = mysql.connector.connect(
-        user="user",
-        password="user",
+        user=MariaDBuser,
+        password=MariaDBpassword,
         #db="Haus",
         host="localhost")
-    except MySQLdb.Error as e:
-        print("Error connecting to MariaDB Platform: {e}")
+    except mysql.connector.Error as e:
+        print("Error connecting to MariaDB Platform: {"+str(e.errno)+"}")
         sys.exit(1)
 
     cursorMySQL = connMySQL.cursor()
@@ -74,11 +77,11 @@ def selectdb():
 
     try:
         connMySQL = mysql.connector.connect(
-        user="user",
-        password="user",
+        user=MariaDBuser,
+        password=MariaDBpassword,
         db="Haus",
         host="localhost")
-    except MySQLdb.Error as e:
+    except mysql.connector.Error as e:
         print("Error connecting to MariaDB Platform: {e}")
         sys.exit(1)
 
@@ -120,7 +123,14 @@ def insertintodb(connSqlite,sql,connMySQL):
         connMySQL.commit()
 
 def main():
-    database = r"/media/RAM/ems_DEU.db"
+    #Usage: python3 copyDB_LG.py /media/RAM
+    try:
+        database = sys.argv[1]+"/ems_DEU.db"
+    except IndexError:
+        database = r"/media/RAM/ems_DEU.db"
+        #raise SystemExit(f"Usage: {sys.argv[0]} <path to database>")
+    
+    print(database)
 
     # create a database connection
     connMySQL = selectdb()

@@ -47,9 +47,12 @@ To start sending to the raspberry, ssh into your LG-ESS
 
 ```
 ssh root@lge-ems.local
-./Both_Mgr.sh &
+nohup ./Both_Mgr.sh &
 ```
 
+There will be Errors like
+nc: can't connect to remote host (192.168.xxx.xxx): Connection refused
+when the receiver isn't started!
 
 
 Prepare the raspberry pi to receive.
@@ -67,7 +70,7 @@ Check if it works. Open a terminal.
 
 `sudo python3 LG-ESSapiSKmqtt.py`
 
-Open the browser and enter "localhost:9090/json/all"
+Open the browser and enter "localhost:9091/json/all"
 
 There should be a list of data
 
@@ -81,7 +84,7 @@ If the server should start on every boot use:
 
 there are two commands to get json data from the api
 
-<ip>:9090/json/all
+<ip>:9091/json/all
 
 is a raw list of all data
 
