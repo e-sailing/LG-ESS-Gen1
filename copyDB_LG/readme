@@ -1,12 +1,21 @@
 The LG-ESS Gen1 has its own database.
 It has limitted memory and deletes old data.
 To work with and save the data it is easier to copy it into a mariadb
+It will install 2 tables PVLG (one column for every 15 min) and PVLGmonth (monthly data)
+
 You should have a local mariadb with the username=user and the password=user.
 
-There is a dashboard for grafana. The dashboard LG-db.json can be imported.
+There is a dashboard file LG-db.json for grafana.
 
 You need
 An empty mariaDB database Haus (and change user, password to your needs)
 sudo apt install python3-mysql.connector
+
+start with copyDB_manuell.sh
+copy the file ems_DEU.db from your LG-ESS device into this folder and start the bash script
+
+
+
+for the bash files copyDB_LG.sh and copyDB_LG_direct.sh you need also:
 sudo apt install sshfs
 sudo mkdir /media/lge-ems
