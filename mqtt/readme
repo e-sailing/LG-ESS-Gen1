@@ -1,0 +1,49 @@
+Quick start
+
+1. The files of this folder should be copied into the /home/root folder of LG-ESS (see in the main readme.md how to do that).
+2. Check if the connection does work with "cat testLGESS.txt | pipe2mqtt myMosquittoServerName.fritz.box" (I use mqtt explorer to see
+   what happens on the mqtt broker and the mqtt broker mosquitto without authentification)
+3. Edit Both_pipe2mqtt.sh to the ip of your mqtt broker.
+4. When check was positiv start "ohup ./Both_pipe2mqtt.sh &"
+
+
+configration for evcc:
+________________________________________________________________
+meters:
+  - name: grid1
+    type: custom
+    power: # power (W)
+      source: mqtt
+      topic: evcc/input/site/gridPower
+
+  - name: pv1
+    type: custom
+    power: # power (W)
+      source: mqtt
+      topic: evcc/input/site/pvPower
+
+  - name: battery1
+    type: custom
+    power: # power (W)
+      source: mqtt
+      topic: evcc/input/site/batteryPower
+    soc: # optional battery soc (%)
+      source: mqtt
+      topic: evcc/input/site/batterySoC
+	  
+...
+site:
+  title: My home
+  meters:
+    grid: grid1
+    pvs:
+    - pv1
+    batteries:
+    - battery1
+...
+
+
+mqtt:
+  broker: myMosquittoServerName.fritz.box:1883
+  topic: evcc # root topic for publishing, set empty to disable
+________________________________________________________________

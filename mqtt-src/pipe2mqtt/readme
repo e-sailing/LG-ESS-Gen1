@@ -1,0 +1,19 @@
+source code to build pipe2mqtt
+
+is based on mqtt-c library MIT (https://github.com/LiamBindle/MQTT-C.git)
+
+this application should work on the LG-ESS
+- it must be armv6l
+- it should work without external libraries
+
+the project is compiled on a raspberry pi 1 with the build.sh script.
+________________________________________________________________
+#!/bin/bash
+gcc -Iinclude -c src/mqtt.c src/mqtt_pal.c src/pipe2mqtt.c
+gcc -static -pthread -o pipe2mqtt *.o
+________________________________________________________________
+
+
+It is build to work with evcc mqtt and openWB mqtt!
+
+in addition it also publish all values in the topic lgess (only every 50 sentence)

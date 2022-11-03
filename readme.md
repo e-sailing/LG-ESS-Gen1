@@ -14,32 +14,30 @@ As a prerequisite for the following steps, the git repository should be cloned.
 
 
 
-### History data
+## History data
 
-To save history data on a raspberry pi in a mariaDB and view it on grafana, use the folder copyDB_LG (mariaDB should have a username user with a password user  ). Start the process by:
-
-
-
-```
-cd copyDB_LG 
-./copyDB_LG.sh
-```
+To save history data on a raspberry pi in a mariaDB and view it on grafana, use the folder copyDB_LG (mariaDB should have a username user with a password user  ).
 
 
 
 
-### Actual data
+## Actual data
 
 Actual data is Also accessible.
 
 The processes running can be viewed with the command top.
-The communication between the different *Mgr processes are done with pipes. These pipes can be sniffed with strace.
+The communication with the serial ports in the different *Mgr processes can be sniffed with strace.
+(The strace comes from <https://github.com/yunchih/static-binaries/blob/master/strace>)
+
+### a) old Version 
+
+- send all strace output to a raspberry pi
+- start a python script to read the values of the modbus traffic and send it to a mqtt broker.
 
 In the folder LG-ESS/root there are two files which should be copied to the LG-ESS.
 
 ![](doc/rpi-filezilla.png)
 
-(The strace comes from https://github.com/yunchih/static-binaries/blob/master/strace) 
 
 The ip address must be edited in the bash script Both_Mgr.sh to the ip address of your raspberry pi!
 
@@ -180,3 +178,25 @@ pvpower 439
 A picture of the data captured from mqtt-explorer
 
 ![](doc/MQTT-explorer.png)
+
+
+## b) new Version
+- pipes the strace output into an application
+- the application reads the modbus values and pushes the data to a mqtt broker
+
+advantage:
+- does work on the internal linux
+- needs only a mqtt-broker (no other server)
+
+There is the source code folder (mqtt-src) with a readme
+
+The compiled version for the LG-ESS and a bash script is in the (mqtt) folder.
+The ip address of the mqtt broker must be edited in the bash script Both_pipe2mqtt.sh!
+
+This app should make LG-ESS Gen1 work with evcc or openWB mqtt interface. It is also useable to integrate LG-ESS in smarthome environments or node-red.
+
+
+## c) slow bash script
+There is an example bash script which converts the modbus protocol into two json strings (test.sh).
+- yes it shows the data on the LG-ESS
+- it is very slow (only for testing)
