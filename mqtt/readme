@@ -4,7 +4,7 @@ Quick start
 2. Check if the connection does work with "cat testLGESS.txt | pipe2mqtt myMosquittoServerName.fritz.box" (I use mqtt explorer to see
    what happens on the mqtt broker and the mqtt broker mosquitto without authentification)
 3. Edit Both_pipe2mqtt.sh to the ip of your mqtt broker.
-4. When check was positiv start "ohup ./Both_pipe2mqtt.sh &"
+4. When check was positiv start "nohup ./Both_pipe2mqtt.sh &"
 
 
 configration for evcc:
